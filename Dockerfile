@@ -7,7 +7,7 @@ WORKDIR /app
 
 RUN addgroup --system exporter && adduser --system --ingroup exporter exporter
 
-COPY pyproject.toml README.md /app/
+COPY pyproject.toml README.md requirements.txt requirements-dev.txt /app/
 COPY src /app/src
 
 RUN pip install --no-cache-dir --upgrade pip && \
