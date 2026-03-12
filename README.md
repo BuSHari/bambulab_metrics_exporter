@@ -273,7 +273,7 @@ Recording rules sample is available at: `deploy/prometheus.recording.yml`
 
 A ready-to-import Unraid template is included:
 
-- `deploy/unraid/bambulab-metrics-exporter.xml`
+- `unraid-bambulab-metrics-exporter.xml`
 
 In Unraid:
 1. Docker -> Add Container -> Template: use XML file content (or host it and use Template URL).
@@ -285,14 +285,14 @@ In Unraid:
 
 ### Unraid clean setup (PUID/PGID)
 
-Unraid-focused files:
+Unraid support is integrated into the main runtime files:
 
-- `deploy/unraid/Dockerfile.unraid`
-- `deploy/unraid/entrypoint-unraid.sh`
-- `deploy/unraid/docker-compose.unraid.yml`
-- `deploy/unraid/bambulab-metrics-exporter.xml`
+- `Dockerfile`
+- `entrypoint.sh`
+- `docker-compose.yml` / `docker-compose.test.yml`
+- `unraid-bambulab-metrics-exporter.xml`
 
-The Unraid image starts as root only for user-mapping bootstrap, then drops privileges to `PUID:PGID` using `gosu`.
+The container starts with bootstrap privileges to align UID/GID, then drops to `PUID:PGID` using `gosu`.
 
 Default values are:
 - `PUID=99`
@@ -304,5 +304,5 @@ Build/run example:
 ```bash
 cd /root/.openclaw/projects/bambulab-prometheus-exporter
 export BAMBULAB_SECRET_KEY='your-strong-key'
-docker compose -f deploy/unraid/docker-compose.unraid.yml up --build -d
+docker compose up --build -d
 ```

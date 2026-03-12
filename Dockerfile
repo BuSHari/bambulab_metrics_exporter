@@ -1,20 +1,22 @@
-FROM python:3.11-slim AS runtime
+FROM python:3.11-slim
 
 ENV PYTHONUNBUFFERED=1 \
     PYTHONDONTWRITEBYTECODE=1
 
 WORKDIR /app
 
-RUN addgroup --system exporter && adduser --system --ingroup exporter exporter
+RUN apt-get update && apt-get install -y --no-install-recommends gosu && rm -rf /var/lib/apt/lists/*
+RUN groupadd -g 1000 appgroup && useradd -u 1000 -g 1000 -m -s /usr/sbin/nologin appuser
 
 COPY pyproject.toml README.md requirements.txt requirements-dev.txt /app/
 COPY src /app/src
+COPY entrypoint.sh /usr/local/bin/entrypoint.sh
 
-RUN pip install --no-cache-dir --upgrade pip && \
+RUN chmod +x /usr/local/bin/entrypoint.sh && \
+    pip install --no-cache-dir --upgrade pip && \
     pip install --no-cache-dir .
-
-USER exporter
 
 EXPOSE 9109
 
-ENTRYPOINT ["bambulab-exporter"]
+ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]
+CMD ["bambulab-exporter"]

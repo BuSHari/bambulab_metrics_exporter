@@ -8,6 +8,10 @@ services:
     ports:
       - "9109:9109"
     environment:
+      # User mapping (works well on Unraid and regular Linux hosts)
+      - PUID=${PUID:-99}
+      - PGID=${PGID:-100}
+      - UMASK=${UMASK:-002}
       # Keep in external secret manager / shell env, not in git
       - BAMBULAB_SECRET_KEY=${BAMBULAB_SECRET_KEY}
     volumes:

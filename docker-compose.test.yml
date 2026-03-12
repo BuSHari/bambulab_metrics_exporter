@@ -8,6 +8,9 @@ services:
     env_file:
       - .env
     environment:
+      PUID: ${PUID:-99}
+      PGID: ${PGID:-100}
+      UMASK: ${UMASK:-002}
       # Set this in shell before up: export BAMBULAB_SECRET_KEY='...'
       BAMBULAB_SECRET_KEY: ${BAMBULAB_SECRET_KEY}
     ports:

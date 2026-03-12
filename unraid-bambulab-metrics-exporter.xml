@@ -12,7 +12,7 @@
   <Overview>Prometheus exporter for Bambu Lab printers (local/cloud MQTT) with /metrics, /health, /ready endpoints.</Overview>
   <Category>Tools: Monitoring</Category>
   <WebUI>http://[IP]:[PORT:9109]/metrics</WebUI>
-  <TemplateURL>https://raw.githubusercontent.com/idan-bush/bambulab-prometheus-exporter/main/deploy/unraid/bambulab-metrics-exporter.xml</TemplateURL>
+  <TemplateURL>https://raw.githubusercontent.com/idan-bush/bambulab-prometheus-exporter/main/unraid-bambulab-metrics-exporter.xml</TemplateURL>
   <Icon>https://raw.githubusercontent.com/idan-bush/bambulab-prometheus-exporter/main/docs/icon.png</Icon>
 
   <Config Name="Web UI Port" Target="9109" Default="9109" Mode="tcp" Description="Exporter HTTP port" Type="Port" Display="always" Required="true" Mask="false">9109</Config>
