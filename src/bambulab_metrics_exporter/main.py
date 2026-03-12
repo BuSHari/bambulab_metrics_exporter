@@ -5,6 +5,7 @@ import os
 from pathlib import Path
 
 import uvicorn
+from dotenv import load_dotenv
 
 from bambulab_metrics_exporter.api import build_app
 from bambulab_metrics_exporter.client.factory import build_client
@@ -17,6 +18,16 @@ from bambulab_metrics_exporter.metrics import ExporterMetrics
 from bambulab_metrics_exporter.startup import startup_validate
 
 logger = logging.getLogger(__name__)
+
+
+def _safe_load_dotenv() -> None:
+    dotenv_path = Path(".env")
+    if not dotenv_path.exists():
+        return
+    try:
+        load_dotenv(dotenv_path=dotenv_path, override=False)
+    except PermissionError:
+        logger.warning("Skipping .env load due to permission error", extra={"path": str(dotenv_path)})
 
 
 def _bootstrap_cloud_credentials() -> None:
@@ -51,10 +62,14 @@ def _bootstrap_cloud_credentials() -> None:
 
 
 def _persist_runtime_env(env_file_path: Path) -> None:
-    sync_env_file(env_file_path)
+    try:
+        sync_env_file(env_file_path)
+    except PermissionError:
+        logger.warning("Skipping .env sync due to permission error", extra={"path": str(env_file_path)})
 
 
 def run() -> None:
+    _safe_load_dotenv()
     _bootstrap_cloud_credentials()
     settings = Settings()
     configure_logging(settings.log_level)

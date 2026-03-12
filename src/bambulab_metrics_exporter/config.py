@@ -3,7 +3,9 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
 class Settings(BaseSettings):
-    model_config = SettingsConfigDict(env_file=".env", env_file_encoding="utf-8", case_sensitive=False)
+    # Environment variables are the primary source.
+    # .env loading is handled in main with a safe best-effort loader.
+    model_config = SettingsConfigDict(case_sensitive=False)
 
     app_name: str = "bambulab-metrics-exporter"
     log_level: str = "INFO"
