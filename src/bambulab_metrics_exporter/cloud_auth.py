@@ -45,6 +45,23 @@ class CloudAuthError(RuntimeError):
     pass
 
 
+def _as_int(value: object, default: int = 0) -> int:
+    if isinstance(value, bool):
+        return int(value)
+    if isinstance(value, int):
+        return value
+    if isinstance(value, float):
+        return int(value)
+    if isinstance(value, str):
+        text = value.strip()
+        if text:
+            try:
+                return int(text)
+            except ValueError:
+                return default
+    return default
+
+
 def _post_json(
     api_base: str,
     path: str,
@@ -181,12 +198,19 @@ def _extract_user_id(
     retries: int,
     api_bases: list[str],
 ) -> str:
+    user_obj = data.get("user")
+    user_uid: object | None = None
+    user_id_alt: object | None = None
+    if isinstance(user_obj, dict):
+        user_uid = user_obj.get("uid")
+        user_id_alt = user_obj.get("id")
+
     candidates: list[object] = [
         data.get("uid"),
         data.get("userId"),
         data.get("user_id"),
-        (data.get("user") or {}).get("uid") if isinstance(data.get("user"), dict) else None,
-        (data.get("user") or {}).get("id") if isinstance(data.get("user"), dict) else None,
+        user_uid,
+        user_id_alt,
     ]
     for candidate in candidates:
         if isinstance(candidate, (str, int)) and str(candidate):
@@ -203,11 +227,12 @@ def _extract_user_id(
             raw = base64.urlsafe_b64decode(payload + padding).decode("utf-8")
             import json as _json
 
-            claims = _json.loads(raw)
-            for key in ("uid", "userId", "sub"):
-                value = claims.get(key)
-                if isinstance(value, (str, int)) and str(value):
-                    return str(value)
+            claims_obj = _json.loads(raw)
+            if isinstance(claims_obj, dict):
+                for key in ("uid", "userId", "sub"):
+                    value = claims_obj.get(key)
+                    if isinstance(value, (str, int)) and str(value):
+                        return str(value)
         except Exception:
             pass
 
@@ -246,7 +271,7 @@ def login_with_code(
         return LoginResult(
             access_token=access_token,
             refresh_token=str(data.get("refreshToken", "")),
-            expires_in=int(data.get("expiresIn", 0)),
+            expires_in=_as_int(data.get("expiresIn", 0), default=0),
             user_id=_extract_user_id(
                 data,
                 access_token,

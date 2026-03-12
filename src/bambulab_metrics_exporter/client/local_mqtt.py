@@ -10,13 +10,14 @@ from typing import Any
 
 import paho.mqtt.client as mqtt
 
+from bambulab_metrics_exporter.client.base import BambuClient
 from bambulab_metrics_exporter.config import Settings
 from bambulab_metrics_exporter.models import PrinterSnapshot
 
 logger = logging.getLogger(__name__)
 
 
-class LocalMqttBambuClient:
+class LocalMqttBambuClient(BambuClient):
     def __init__(self, settings: Settings) -> None:
         self._settings = settings
         self._topic_report = f"device/{settings.bambulab_serial}/report"
@@ -27,7 +28,11 @@ class LocalMqttBambuClient:
         self._connected = False
         self._last_message_ts = 0.0
 
-        self._client = mqtt.Client(mqtt.CallbackAPIVersion.VERSION2)
+        # paho v2 callback API (typed loosely for compatibility across stub versions)
+        if hasattr(mqtt, "CallbackAPIVersion"):
+            self._client = mqtt.Client(mqtt.CallbackAPIVersion.VERSION2)
+        else:
+            self._client = mqtt.Client()
         self._client.username_pw_set(settings.bambulab_username, settings.bambulab_access_code)
         self._client.tls_set(cert_reqs=ssl.CERT_NONE)
         self._client.tls_insecure_set(True)
@@ -81,9 +86,9 @@ class LocalMqttBambuClient:
         self,
         _client: mqtt.Client,
         _userdata: object,
-        _flags: mqtt.ConnectFlags,
-        reason_code: mqtt.ReasonCode,
-        _properties: mqtt.Properties | None,
+        _flags: object,
+        reason_code: object,
+        _properties: object | None,
     ) -> None:
         if reason_code != 0:
             logger.error(
@@ -104,9 +109,9 @@ class LocalMqttBambuClient:
         self,
         _client: mqtt.Client,
         _userdata: object,
-        _flags: mqtt.DisconnectFlags,
-        reason_code: mqtt.ReasonCode,
-        _properties: mqtt.Properties | None,
+        _flags: object,
+        reason_code: object,
+        _properties: object | None,
     ) -> None:
         with self._lock:
             self._connected = False

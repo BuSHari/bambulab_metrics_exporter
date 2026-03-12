@@ -146,11 +146,11 @@ class ExporterMetrics:
         for light in snapshot.lights_report:
             node = str(light.get("node", "")).lower()
             mode = str(light.get("mode", "")).lower()
-            state = 1.0 if mode == "on" else 0.0 if mode in {"off", "auto"} else float("nan")
+            light_state = 1.0 if mode == "on" else 0.0 if mode in {"off", "auto"} else float("nan")
             if node == "chamber_light":
-                chamber_light = state
+                chamber_light = light_state
             if node == "work_light":
-                work_light = state
+                work_light = light_state
         self._set_optional(self.chamber_light_on, chamber_light)
         self._set_optional(self.work_light_on, work_light)
 
@@ -193,7 +193,8 @@ class ExporterMetrics:
                     self.ams_unit_temperature_celsius.labels(**labels, ams_id=ams_id).set(float(temp))
                 except (TypeError, ValueError):
                     pass
-            trays = ams.get("tray") if isinstance(ams.get("tray"), list) else []
+            raw_trays = ams.get("tray")
+            trays = [t for t in raw_trays if isinstance(t, dict)] if isinstance(raw_trays, list) else []
             active_id = str(ams.get("tray_now", "-1"))
             for tray in trays:
                 tray_id = str(tray.get("id", "-1"))
