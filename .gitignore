@@ -1,10 +1,12 @@
 .venv/
 .env
+config/
 mqtt-samples/
 __pycache__/
 .pytest_cache/
 .mypy_cache/
 .ruff_cache/
+*.log
 *.pyc
 *.pyo
 *.pyd

@@ -121,6 +121,23 @@ or:
 docker compose up -d --build
 ```
 
+### Docker Compose (recommended)
+
+`docker-compose.yml` now includes a full environment map with inline explanations.
+
+- Important/commonly edited fields are active by default.
+- Less-important knobs are documented in comments.
+- Works for regular Linux hosts and Unraid (`PUID/PGID/UMASK` supported).
+
+Minimal required values before first run (cloud mode):
+
+- `BAMBULAB_TRANSPORT=cloud_mqtt`
+- `BAMBULAB_SERIAL=<printer_serial>`
+- `BAMBULAB_SECRET_KEY=<strong_random_key>`
+- `BAMBULAB_CLOUD_EMAIL=<your_email>`
+
+If `BAMBULAB_CLOUD_USER_ID`/`BAMBULAB_CLOUD_ACCESS_TOKEN` are missing, startup re-auth flow can trigger automatically.
+
 ## Prometheus integration
 
 Use `deploy/prometheus.scrape.yml` snippet, or equivalent:
