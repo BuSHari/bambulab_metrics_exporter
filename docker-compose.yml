@@ -7,6 +7,11 @@ services:
       - .env
     ports:
       - "9109:9109"
+    environment:
+      # Keep in external secret manager / shell env, not in git
+      - BAMBULAB_SECRET_KEY=${BAMBULAB_SECRET_KEY}
+    volumes:
+      - ./config:/config/bambulab-metrics-exporter
     healthcheck:
       test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:9109/health', timeout=2)"]
       interval: 30s

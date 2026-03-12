@@ -180,3 +180,44 @@ pytest -q
 - Optional job-name metric via controlled allow-listing (avoid cardinality issues)
 - Better fan mapping per model/firmware
 - Integration tests with recorded MQTT fixtures
+
+
+## Secure local credential storage (Option 1)
+
+The project now supports encrypted local credential storage for cloud auth:
+
+- Encrypted file: `${BAMBULAB_CONFIG_DIR}/${BAMBULAB_CREDENTIALS_FILE}`
+- Shared with host via Docker volume
+- Encrypted using `BAMBULAB_SECRET_KEY`
+
+### Docker example
+
+```yaml
+services:
+  bambulab-metrics-exporter:
+    image: bambulab-metrics-exporter:latest
+    env_file:
+      - .env
+    environment:
+      - BAMBULAB_SECRET_KEY=${BAMBULAB_SECRET_KEY}
+    volumes:
+      - ./config:/config/bambulab-metrics-exporter
+```
+
+### Cloud auth + save
+
+```bash
+bambulab-cloud-auth --email you@example.com --code 123456 \
+  --serial <printer_serial> \
+  --save \
+  --secret-key "$BAMBULAB_SECRET_KEY"
+```
+
+This command will:
+1. Fetch cloud token/user id
+2. Save encrypted credentials to config volume
+3. Update `.env` automatically
+
+At exporter startup:
+- If `BAMBULAB_TRANSPORT=cloud_mqtt` and env tokens are missing, exporter auto-loads credentials from encrypted file.
+- Runtime-provided env vars are synced back into `.env` (whitelisted keys).

@@ -2,9 +2,14 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
 import sys
 from dataclasses import dataclass
+from pathlib import Path
 from urllib import error, request
+
+from bambulab_metrics_exporter.credentials_store import save_encrypted_credentials
+from bambulab_metrics_exporter.env_sync import sync_env_file
 
 API_BASE = "https://api.bambulab.com"
 
@@ -58,6 +63,12 @@ def _build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--email", required=True, help="Bambu account email")
     parser.add_argument("--code", help="2FA code from email")
     parser.add_argument("--send-code", action="store_true", help="Send email verification code")
+    parser.add_argument("--save", action="store_true", help="Save encrypted credentials in config dir")
+    parser.add_argument("--config-dir", default=os.getenv("BAMBULAB_CONFIG_DIR", "/config/bambulab-metrics-exporter"))
+    parser.add_argument("--credentials-file", default=os.getenv("BAMBULAB_CREDENTIALS_FILE", "credentials.enc.json"))
+    parser.add_argument("--secret-key", default=os.getenv("BAMBULAB_SECRET_KEY", ""))
+    parser.add_argument("--serial", default=os.getenv("BAMBULAB_SERIAL", ""))
+    parser.add_argument("--env-file", default=".env", help=".env file to update")
     return parser
 
 
@@ -74,15 +85,37 @@ def main() -> int:
         return 2
 
     result = login_with_code(args.email, args.code)
-    print("Use these env vars in .env:")
-    print("BAMBULAB_TRANSPORT=cloud_mqtt")
-    print(f"BAMBULAB_CLOUD_USER_ID={result.user_id}")
-    print(f"BAMBULAB_CLOUD_ACCESS_TOKEN={result.access_token}")
-    print("# optional")
-    print("# BAMBULAB_CLOUD_MQTT_HOST=us.mqtt.bambulab.com")
-    print("# BAMBULAB_CLOUD_MQTT_PORT=8883")
-    print("# BAMBULAB_CLOUD_REFRESH_TOKEN=<value>")
-    print(f"# token_expires_in_seconds={result.expires_in}")
+
+    os.environ["BAMBULAB_TRANSPORT"] = "cloud_mqtt"
+    if args.serial:
+        os.environ["BAMBULAB_SERIAL"] = args.serial
+    os.environ["BAMBULAB_CLOUD_USER_ID"] = result.user_id
+    os.environ["BAMBULAB_CLOUD_ACCESS_TOKEN"] = result.access_token
+    os.environ["BAMBULAB_CLOUD_REFRESH_TOKEN"] = result.refresh_token
+    os.environ.setdefault("BAMBULAB_CLOUD_MQTT_HOST", "us.mqtt.bambulab.com")
+    os.environ.setdefault("BAMBULAB_CLOUD_MQTT_PORT", "8883")
+    os.environ["BAMBULAB_CONFIG_DIR"] = args.config_dir
+    os.environ["BAMBULAB_CREDENTIALS_FILE"] = args.credentials_file
+    if args.secret_key:
+        os.environ["BAMBULAB_SECRET_KEY"] = args.secret_key
+
+    if args.save:
+        if not args.secret_key:
+            print("--secret-key (or BAMBULAB_SECRET_KEY) is required with --save", file=sys.stderr)
+            return 2
+        payload = {
+            "BAMBULAB_CLOUD_USER_ID": result.user_id,
+            "BAMBULAB_CLOUD_ACCESS_TOKEN": result.access_token,
+            "BAMBULAB_CLOUD_REFRESH_TOKEN": result.refresh_token,
+            "BAMBULAB_CLOUD_MQTT_HOST": os.environ["BAMBULAB_CLOUD_MQTT_HOST"],
+            "BAMBULAB_CLOUD_MQTT_PORT": os.environ["BAMBULAB_CLOUD_MQTT_PORT"],
+        }
+        save_encrypted_credentials(Path(args.config_dir) / args.credentials_file, args.secret_key, payload)
+
+    sync_env_file(Path(args.env_file))
+
+    print(f"Updated {args.env_file}")
+    print("Cloud credentials ready.")
     return 0
 
 

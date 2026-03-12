@@ -22,6 +22,10 @@ class Settings(BaseSettings):
     bambulab_cloud_access_token: str = ""
     bambulab_cloud_refresh_token: str = ""
 
+    bambulab_config_dir: str = "/config/bambulab-metrics-exporter"
+    bambulab_credentials_file: str = "credentials.enc.json"
+    bambulab_secret_key: str = ""
+
     polling_interval_seconds: float = 10.0
     request_timeout_seconds: float = 8.0
     reconnect_interval_seconds: float = 5.0

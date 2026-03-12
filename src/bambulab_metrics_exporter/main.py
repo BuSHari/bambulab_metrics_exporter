@@ -1,6 +1,8 @@
 from __future__ import annotations
 
 import logging
+import os
+from pathlib import Path
 
 import uvicorn
 
@@ -8,16 +10,56 @@ from bambulab_metrics_exporter.api import build_app
 from bambulab_metrics_exporter.client.factory import build_client
 from bambulab_metrics_exporter.collector import PollingCollector
 from bambulab_metrics_exporter.config import Settings
+from bambulab_metrics_exporter.credentials_store import load_encrypted_credentials
+from bambulab_metrics_exporter.env_sync import sync_env_file
 from bambulab_metrics_exporter.logging_utils import configure_logging
 from bambulab_metrics_exporter.metrics import ExporterMetrics
 
 logger = logging.getLogger(__name__)
 
 
+def _bootstrap_cloud_credentials() -> None:
+    transport = os.getenv("BAMBULAB_TRANSPORT", "local_mqtt")
+    if transport != "cloud_mqtt":
+        return
+
+    has_uid = bool(os.getenv("BAMBULAB_CLOUD_USER_ID"))
+    has_token = bool(os.getenv("BAMBULAB_CLOUD_ACCESS_TOKEN"))
+    if has_uid and has_token:
+        return
+
+    config_dir = Path(os.getenv("BAMBULAB_CONFIG_DIR", "/config/bambulab-metrics-exporter"))
+    credentials_name = os.getenv("BAMBULAB_CREDENTIALS_FILE", "credentials.enc.json")
+    credentials_path = config_dir / credentials_name
+    secret = os.getenv("BAMBULAB_SECRET_KEY", "")
+
+    if not secret or not credentials_path.exists():
+        return
+
+    payload = load_encrypted_credentials(credentials_path, secret)
+    for key in (
+        "BAMBULAB_CLOUD_USER_ID",
+        "BAMBULAB_CLOUD_ACCESS_TOKEN",
+        "BAMBULAB_CLOUD_REFRESH_TOKEN",
+        "BAMBULAB_CLOUD_MQTT_HOST",
+        "BAMBULAB_CLOUD_MQTT_PORT",
+    ):
+        value = payload.get(key)
+        if isinstance(value, str) and value:
+            os.environ[key] = value
+
+
+def _persist_runtime_env(env_file_path: Path) -> None:
+    sync_env_file(env_file_path)
+
+
 def run() -> None:
+    _bootstrap_cloud_credentials()
     settings = Settings()
     configure_logging(settings.log_level)
     settings.require_transport_config()
+
+    _persist_runtime_env(Path(".env"))
 
     metrics = ExporterMetrics(
         printer_name=settings.printer_name,
