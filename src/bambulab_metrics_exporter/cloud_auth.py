@@ -13,7 +13,10 @@ from urllib import error, request
 from bambulab_metrics_exporter.credentials_store import save_encrypted_credentials
 from bambulab_metrics_exporter.env_sync import sync_env_file
 
-API_BASE = "https://api.bambulab.com"
+DEFAULT_API_BASES = [
+    "https://api.bambulab.com",
+    "https://api-eu.bambulab.com",
+]
 DEFAULT_TIMEOUT_SECONDS = 20
 DEFAULT_RETRIES = 3
 
@@ -42,9 +45,15 @@ class CloudAuthError(RuntimeError):
     pass
 
 
-def _post_json(path: str, payload: dict[str, object], timeout_seconds: int, retries: int) -> dict[str, object]:
+def _post_json(
+    api_base: str,
+    path: str,
+    payload: dict[str, object],
+    timeout_seconds: int,
+    retries: int,
+) -> dict[str, object]:
     req = request.Request(
-        f"{API_BASE}{path}",
+        f"{api_base}{path}",
         data=json.dumps(payload).encode("utf-8"),
         headers=DEFAULT_HEADERS,
         method="POST",
@@ -62,26 +71,51 @@ def _post_json(path: str, payload: dict[str, object], timeout_seconds: int, retr
             if attempt >= retries or not should_retry:
                 if exc.code == 403 and "1010" in body:
                     raise CloudAuthError(
-                        "Cloud auth blocked (HTTP 403 code 1010). "
-                        "Likely network/region/fingerprint restriction. "
-                        "Try running bambulab-cloud-auth from your home host network."
+                        f"Cloud auth blocked on {api_base} (HTTP 403 code 1010). "
+                        "Likely network/region/fingerprint restriction."
                     ) from exc
-                raise CloudAuthError(f"HTTP {exc.code}: {body}") from exc
+                raise CloudAuthError(f"{api_base} -> HTTP {exc.code}: {body}") from exc
         except error.URLError as exc:
             if attempt >= retries:
-                raise CloudAuthError(f"Network error: {exc}") from exc
+                raise CloudAuthError(f"{api_base} -> Network error: {exc}") from exc
 
         attempt += 1
         backoff = min(2**attempt, 8) + random.uniform(0, 0.5)
         time.sleep(backoff)
 
 
-def send_code(email: str, timeout_seconds: int = DEFAULT_TIMEOUT_SECONDS, retries: int = DEFAULT_RETRIES) -> None:
-    _post_json(
+def _post_json_multi_base(
+    path: str,
+    payload: dict[str, object],
+    timeout_seconds: int,
+    retries: int,
+    api_bases: list[str],
+) -> dict[str, object]:
+    errors: list[str] = []
+    for api_base in api_bases:
+        try:
+            return _post_json(api_base, path, payload, timeout_seconds=timeout_seconds, retries=retries)
+        except CloudAuthError as exc:
+            errors.append(str(exc))
+
+    raise CloudAuthError(
+        "All cloud API bases failed. Tried: " + ", ".join(api_bases) + " | errors: " + " || ".join(errors)
+    )
+
+
+def send_code(
+    email: str,
+    timeout_seconds: int = DEFAULT_TIMEOUT_SECONDS,
+    retries: int = DEFAULT_RETRIES,
+    api_bases: list[str] | None = None,
+) -> None:
+    bases = api_bases or DEFAULT_API_BASES
+    _post_json_multi_base(
         "/v1/user-service/user/sendemail/code",
         {"email": email, "type": "codeLogin"},
         timeout_seconds=timeout_seconds,
         retries=retries,
+        api_bases=bases,
     )
 
 
@@ -90,12 +124,15 @@ def login_with_code(
     code: str,
     timeout_seconds: int = DEFAULT_TIMEOUT_SECONDS,
     retries: int = DEFAULT_RETRIES,
+    api_bases: list[str] | None = None,
 ) -> LoginResult:
-    data = _post_json(
+    bases = api_bases or DEFAULT_API_BASES
+    data = _post_json_multi_base(
         "/v1/user-service/user/login",
         {"account": email, "code": code},
         timeout_seconds=timeout_seconds,
         retries=retries,
+        api_bases=bases,
     )
     if "error" in data:
         raise CloudAuthError(str(data["error"]))
@@ -124,6 +161,11 @@ def _build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--env-file", default=".env", help=".env file to update")
     parser.add_argument("--timeout", type=int, default=DEFAULT_TIMEOUT_SECONDS, help="HTTP timeout seconds")
     parser.add_argument("--retries", type=int, default=DEFAULT_RETRIES, help="Retries for transient failures")
+    parser.add_argument(
+        "--api-bases",
+        default=",".join(DEFAULT_API_BASES),
+        help="Comma-separated API base URLs fallback order",
+    )
     return parser
 
 
@@ -131,8 +173,9 @@ def main() -> int:
     args = _build_parser().parse_args()
 
     try:
+        api_bases = [x.strip() for x in args.api_bases.split(",") if x.strip()]
         if args.send_code:
-            send_code(args.email, timeout_seconds=args.timeout, retries=args.retries)
+            send_code(args.email, timeout_seconds=args.timeout, retries=args.retries, api_bases=api_bases)
             print("Verification code sent.")
             return 0
 
@@ -140,7 +183,13 @@ def main() -> int:
             print("--code is required unless --send-code is used", file=sys.stderr)
             return 2
 
-        result = login_with_code(args.email, args.code, timeout_seconds=args.timeout, retries=args.retries)
+        result = login_with_code(
+            args.email,
+            args.code,
+            timeout_seconds=args.timeout,
+            retries=args.retries,
+            api_bases=api_bases,
+        )
 
         os.environ["BAMBULAB_TRANSPORT"] = "cloud_mqtt"
         if args.serial:
