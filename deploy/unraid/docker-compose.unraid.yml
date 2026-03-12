@@ -1,0 +1,19 @@
+services:
+  bambulab-metrics-exporter:
+    build:
+      context: ../..
+      dockerfile: deploy/unraid/Dockerfile.unraid
+    container_name: bambulab-metrics-exporter
+    restart: unless-stopped
+    environment:
+      - PUID=99
+      - PGID=100
+      - UMASK=002
+      - BAMBULAB_SECRET_KEY=${BAMBULAB_SECRET_KEY}
+    env_file:
+      - ../../.env
+    ports:
+      - "9109:9109"
+    volumes:
+      - /mnt/user/appdata/bambulab-metrics-exporter:/config/bambulab-metrics-exporter
+      - ../../.env:/app/.env

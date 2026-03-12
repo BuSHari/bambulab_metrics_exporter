@@ -281,3 +281,28 @@ In Unraid:
 3. Start container and verify `/metrics`.
 
 > Note: Replace repository/template/icon URLs in XML with your actual GitHub/registry paths before publishing.
+
+
+### Unraid clean setup (PUID/PGID)
+
+Unraid-focused files:
+
+- `deploy/unraid/Dockerfile.unraid`
+- `deploy/unraid/entrypoint-unraid.sh`
+- `deploy/unraid/docker-compose.unraid.yml`
+- `deploy/unraid/bambulab-metrics-exporter.xml`
+
+The Unraid image starts as root only for user-mapping bootstrap, then drops privileges to `PUID:PGID` using `gosu`.
+
+Default values are:
+- `PUID=99`
+- `PGID=100`
+- `UMASK=002`
+
+Build/run example:
+
+```bash
+cd /root/.openclaw/projects/bambulab-prometheus-exporter
+export BAMBULAB_SECRET_KEY='your-strong-key'
+docker compose -f deploy/unraid/docker-compose.unraid.yml up --build -d
+```

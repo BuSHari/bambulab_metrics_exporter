@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <Container version="2">
   <Name>bambulab-metrics-exporter</Name>
-  <Repository>ghcr.io/idan-bush/bambulab-metrics-exporter:latest</Repository>
+  <Repository>ghcr.io/idan-bush/bambulab-metrics-exporter:unraid</Repository>
   <Registry>https://ghcr.io</Registry>
   <Network>bridge</Network>
   <MyIP/>
@@ -18,6 +18,10 @@
   <Config Name="Web UI Port" Target="9109" Default="9109" Mode="tcp" Description="Exporter HTTP port" Type="Port" Display="always" Required="true" Mask="false">9109</Config>
 
   <Config Name="Config Dir" Target="/config/bambulab-metrics-exporter" Default="/mnt/user/appdata/bambulab-metrics-exporter" Mode="rw" Description="Persistent config and encrypted credentials" Type="Path" Display="always" Required="true" Mask="false">/mnt/user/appdata/bambulab-metrics-exporter</Config>
+
+  <Config Name="PUID" Target="PUID" Default="99" Mode="" Description="User ID to run container as (Unraid: usually 99)" Type="Variable" Display="always" Required="true" Mask="false">99</Config>
+  <Config Name="PGID" Target="PGID" Default="100" Mode="" Description="Group ID to run container as (Unraid: usually 100)" Type="Variable" Display="always" Required="true" Mask="false">100</Config>
+  <Config Name="UMASK" Target="UMASK" Default="002" Mode="" Description="File creation mask" Type="Variable" Display="advanced" Required="false" Mask="false">002</Config>
 
   <Config Name="Transport" Target="BAMBULAB_TRANSPORT" Default="cloud_mqtt" Mode="" Description="local_mqtt or cloud_mqtt" Type="Variable" Display="always" Required="true" Mask="false">cloud_mqtt</Config>
   <Config Name="Printer Serial" Target="BAMBULAB_SERIAL" Default="" Mode="" Description="Printer device serial (required)" Type="Variable" Display="always" Required="true" Mask="false"></Config>

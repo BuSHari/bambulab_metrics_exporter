@@ -1,0 +1,22 @@
+FROM python:3.11-slim
+
+ENV PYTHONUNBUFFERED=1 \
+    PYTHONDONTWRITEBYTECODE=1
+
+WORKDIR /app
+
+RUN apt-get update && apt-get install -y --no-install-recommends gosu && rm -rf /var/lib/apt/lists/*
+RUN groupadd -g 1000 appgroup && useradd -u 1000 -g 1000 -m -s /usr/sbin/nologin appuser
+
+COPY pyproject.toml README.md requirements.txt requirements-dev.txt /app/
+COPY src /app/src
+COPY deploy/unraid/entrypoint-unraid.sh /usr/local/bin/entrypoint-unraid.sh
+
+RUN chmod +x /usr/local/bin/entrypoint-unraid.sh && \
+    pip install --no-cache-dir --upgrade pip && \
+    pip install --no-cache-dir .
+
+EXPOSE 9109
+
+ENTRYPOINT ["/usr/local/bin/entrypoint-unraid.sh"]
+CMD ["bambulab-exporter"]
