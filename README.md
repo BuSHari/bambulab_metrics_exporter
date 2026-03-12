@@ -170,6 +170,10 @@ scrape_configs:
 - `bambulab_queue_status`
 - `bambulab_queue_position`
 
+- `bambulab_chamber_light_on`
+- `bambulab_work_light_on`
+- `bambulab_xcam_feature_enabled{feature="..."}`
+
 Exporter self-metrics:
 
 - `bambulab_exporter_scrape_duration_seconds`
@@ -258,3 +262,6 @@ On container startup, exporter performs a connection preflight:
   - Re-auth requires `BAMBULAB_CLOUD_EMAIL`.
   - If `BAMBULAB_CLOUD_CODE` is missing, exporter sends a new code email and exits with instruction to restart with the code.
   - On success, new credentials are saved encrypted to config dir and synced to `.env`, so next startup won't require re-entry.
+
+
+Alert rules sample is available at: `deploy/prometheus.alerts.yml`

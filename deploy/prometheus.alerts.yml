@@ -1,0 +1,38 @@
+groups:
+  - name: bambulab-exporter
+    rules:
+      - alert: BambuPrinterOffline
+        expr: bambulab_printer_connected == 0
+        for: 2m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Bambu printer disconnected"
+          description: "Printer {{ $labels.printer_name }} has been disconnected for more than 2 minutes."
+
+      - alert: BambuExporterScrapeFailing
+        expr: bambulab_exporter_scrape_success == 0
+        for: 3m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Bambu exporter scrape failing"
+          description: "Exporter for {{ $labels.printer_name }} is failing scrape cycles."
+
+      - alert: BambuPrinterErrorActive
+        expr: bambulab_printer_error == 1
+        for: 1m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Bambu printer error"
+          description: "Printer {{ $labels.printer_name }} has active error code {{ $value }}."
+
+      - alert: BambuNozzleTooHot
+        expr: bambulab_nozzle_temperature_celsius > 320
+        for: 30s
+        labels:
+          severity: critical
+        annotations:
+          summary: "Nozzle temperature too high"
+          description: "Nozzle temperature for {{ $labels.printer_name }} exceeded safe threshold."

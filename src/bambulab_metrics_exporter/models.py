@@ -240,6 +240,33 @@ class PrinterSnapshot:
             return value.strip()
         return None
 
+
+    @property
+    def lights_report(self) -> list[dict[str, Any]]:
+        value = self.print_block.get("lights_report")
+        if isinstance(value, list):
+            return [x for x in value if isinstance(x, dict)]
+        return []
+
+    @property
+    def xcam_flags(self) -> dict[str, float]:
+        xcam = self.print_block.get("xcam")
+        if not isinstance(xcam, dict):
+            return {}
+        out: dict[str, float] = {}
+        keys = [
+            "allow_skip_parts",
+            "buildplate_marker_detector",
+            "first_layer_inspector",
+            "print_halt",
+            "printing_monitor",
+            "spaghetti_detector",
+        ]
+        for key in keys:
+            val = xcam.get(key)
+            if isinstance(val, bool):
+                out[key] = 1.0 if val else 0.0
+        return out
     @property
     def ams_units(self) -> list[dict[str, Any]]:
         ams = self.print_block.get("ams", {})

@@ -50,6 +50,9 @@ class ExporterMetrics:
         self.queue_status = Gauge("bambulab_queue_status", "Queue status numeric code", label_names, registry=self.registry)
         self.queue_position = Gauge("bambulab_queue_position", "Current queue position", label_names, registry=self.registry)
         self.printer_error_code = Gauge("bambulab_printer_error_code", "Raw printer error code", label_names, registry=self.registry)
+        self.chamber_light_on = Gauge("bambulab_chamber_light_on", "Chamber light on/off", label_names, registry=self.registry)
+        self.work_light_on = Gauge("bambulab_work_light_on", "Work light on/off", label_names, registry=self.registry)
+        self.xcam_feature_enabled = Gauge("bambulab_xcam_feature_enabled", "XCam feature enabled flags", [*label_names, "feature"], registry=self.registry)
         self.gcode_state = Gauge("bambulab_printer_gcode_state", "Current gcode state encoded as one-hot labels", [*label_names, "state"], registry=self.registry)
         self.mc_print_stage_state = Gauge("bambulab_mc_print_stage_state", "Current machine print stage as one-hot labels", [*label_names, "stage"], registry=self.registry)
 
@@ -137,6 +140,23 @@ class ExporterMetrics:
         self._set_optional(self.queue_position, snapshot.queue_position)
         self._set_optional(self.print_error_code_legacy, snapshot.print_error)
         self._set_optional(self.ap_err_code, snapshot.ap_err)
+
+        chamber_light = None
+        work_light = None
+        for light in snapshot.lights_report:
+            node = str(light.get("node", "")).lower()
+            mode = str(light.get("mode", "")).lower()
+            state = 1.0 if mode == "on" else 0.0 if mode in {"off", "auto"} else float("nan")
+            if node == "chamber_light":
+                chamber_light = state
+            if node == "work_light":
+                work_light = state
+        self._set_optional(self.chamber_light_on, chamber_light)
+        self._set_optional(self.work_light_on, work_light)
+
+        self.xcam_feature_enabled.clear()
+        for feature, enabled in snapshot.xcam_flags.items():
+            self.xcam_feature_enabled.labels(**labels, feature=feature).set(enabled)
 
         error_code = snapshot.print_error_code
         self.printer_error.labels(**labels).set(1.0 if error_code and error_code != 0 else 0.0)
