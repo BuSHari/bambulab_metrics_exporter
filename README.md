@@ -4,7 +4,7 @@ Production-oriented Prometheus exporter for Bambu Lab printers (homelab/self-hos
 
 ## What this does
 
-- Connects to Bambu printer over **LAN MQTT** (`mqtts://<printer>:8883`)
+- Connects to Bambu printer over **LAN MQTT** or **Cloud MQTT**
 - Periodically requests a full state snapshot (`pushall`)
 - Parses print state/telemetry into stable Prometheus metrics
 - Exposes:
@@ -28,7 +28,7 @@ The Homey app was used as architecture reference (not copied):
   - `nozzle_temper`, `bed_temper`, `chamber_temper`
   - AMS blocks, error codes
 
-For exporter scope, local MQTT is preferred: lower latency, simpler, no cloud dependency.
+For exporter scope, local MQTT is preferred by default, but cloud MQTT is now supported as an alternative transport.
 
 ## Quick start (local)
 
@@ -47,17 +47,55 @@ Then open:
 - <http://localhost:9109/health>
 - <http://localhost:9109/ready>
 
+## Cloud connection (email + 2FA code)
+
+Use the included helper CLI to get cloud credentials:
+
+```bash
+python -m venv .venv
+source .venv/bin/activate
+pip install -e .
+
+# Step 1: send verification code to email
+bambulab-cloud-auth --email you@example.com --send-code
+
+# Step 2: exchange code for access token + user id
+bambulab-cloud-auth --email you@example.com --code 123456
+```
+
+Then put the output values in `.env`:
+
+```dotenv
+BAMBULAB_TRANSPORT=cloud_mqtt
+BAMBULAB_SERIAL=<printer_serial>
+BAMBULAB_CLOUD_USER_ID=<uid>
+BAMBULAB_CLOUD_ACCESS_TOKEN=<access_token>
+BAMBULAB_CLOUD_MQTT_HOST=us.mqtt.bambulab.com
+BAMBULAB_CLOUD_MQTT_PORT=8883
+```
+
+And run as usual:
+
+```bash
+bambulab-exporter
+```
+
 ## Environment variables
 
 | Variable | Required | Default | Description |
 |---|---:|---|---|
-| `BAMBULAB_TRANSPORT` | no | `local_mqtt` | Transport backend (currently local_mqtt) |
+| `BAMBULAB_TRANSPORT` | no | `local_mqtt` | Transport backend (`local_mqtt` or `cloud_mqtt`) |
 | `BAMBULAB_HOST` | yes | - | Printer IP/hostname |
 | `BAMBULAB_PORT` | no | `8883` | Printer MQTT TLS port |
 | `BAMBULAB_SERIAL` | yes | - | Printer serial/device id |
 | `BAMBULAB_ACCESS_CODE` | yes | - | Printer LAN access code |
 | `BAMBULAB_USERNAME` | no | `bblp` | MQTT username |
 | `BAMBULAB_REQUEST_PUSHALL` | no | `true` | Request full snapshot every poll |
+| `BAMBULAB_CLOUD_MQTT_HOST` | cloud | `us.mqtt.bambulab.com` | Cloud MQTT broker host |
+| `BAMBULAB_CLOUD_MQTT_PORT` | cloud | `8883` | Cloud MQTT broker port |
+| `BAMBULAB_CLOUD_USER_ID` | cloud | - | Bambu cloud uid (used as username `u_<uid>`) |
+| `BAMBULAB_CLOUD_ACCESS_TOKEN` | cloud | - | Bambu cloud access token |
+| `BAMBULAB_CLOUD_REFRESH_TOKEN` | no | empty | Optional stored refresh token (future use) |
 | `POLLING_INTERVAL_SECONDS` | no | `10` | Polling interval |
 | `REQUEST_TIMEOUT_SECONDS` | no | `8` | Per-cycle snapshot timeout |
 | `LISTEN_HOST` | no | `0.0.0.0` | HTTP bind host |
@@ -130,13 +168,13 @@ pytest -q
 
 ## Known limitations
 
-1. Current implementation is LAN MQTT only (by design).
-2. TLS cert verification is disabled for printer-local TLS (common in Bambu LAN mode).
+1. Cloud mode currently expects a valid access token (helper tool included for obtaining it).
+2. TLS cert verification is disabled in both LAN/cloud MQTT paths for compatibility with current broker behavior.
 3. Some firmware fields can be missing or model-specific; exporter degrades gracefully (`NaN` for missing scalar values).
 
 ## Future enhancements
 
-- Cloud transport plugin (`BambuCloudClient`) behind same client interface
+- Automatic access-token refresh using refresh token
 - Optional job-name metric via controlled allow-listing (avoid cardinality issues)
 - Better fan mapping per model/firmware
 - Integration tests with recorded MQTT fixtures

@@ -28,6 +28,7 @@ dev = [
 
 [project.scripts]
 bambulab-exporter = "bambulab_metrics_exporter.main:run"
+bambulab-cloud-auth = "bambulab_metrics_exporter.cloud_auth:main"
 
 [tool.setuptools]
 package-dir = {"" = "src"}

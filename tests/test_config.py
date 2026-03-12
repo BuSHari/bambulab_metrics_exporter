@@ -12,3 +12,14 @@ def test_missing_required_local_mqtt_fields() -> None:
     )
     with pytest.raises(ValueError):
         settings.require_transport_config()
+
+
+def test_missing_required_cloud_mqtt_fields() -> None:
+    settings = Settings(
+        bambulab_transport="cloud_mqtt",
+        bambulab_serial="",
+        bambulab_cloud_user_id="",
+        bambulab_cloud_access_token="",
+    )
+    with pytest.raises(ValueError):
+        settings.require_transport_config()

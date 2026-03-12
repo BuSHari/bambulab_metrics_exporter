@@ -16,6 +16,12 @@ class Settings(BaseSettings):
     bambulab_username: str = "bblp"
     bambulab_request_pushall: bool = True
 
+    bambulab_cloud_mqtt_host: str = "us.mqtt.bambulab.com"
+    bambulab_cloud_mqtt_port: int = 8883
+    bambulab_cloud_user_id: str = ""
+    bambulab_cloud_access_token: str = ""
+    bambulab_cloud_refresh_token: str = ""
+
     polling_interval_seconds: float = 10.0
     request_timeout_seconds: float = 8.0
     reconnect_interval_seconds: float = 5.0
@@ -44,7 +50,7 @@ class Settings(BaseSettings):
     @field_validator("bambulab_transport")
     @classmethod
     def validate_transport(cls, value: str) -> str:
-        supported = {"local_mqtt"}
+        supported = {"local_mqtt", "cloud_mqtt"}
         if value not in supported:
             raise ValueError(f"Unsupported transport '{value}', supported: {sorted(supported)}")
         return value
@@ -62,3 +68,16 @@ class Settings(BaseSettings):
             ]
             if missing:
                 raise ValueError(f"Missing required env vars for local_mqtt: {', '.join(missing)}")
+
+        if self.bambulab_transport == "cloud_mqtt":
+            missing = [
+                key
+                for key, raw in {
+                    "BAMBULAB_SERIAL": self.bambulab_serial,
+                    "BAMBULAB_CLOUD_USER_ID": self.bambulab_cloud_user_id,
+                    "BAMBULAB_CLOUD_ACCESS_TOKEN": self.bambulab_cloud_access_token,
+                }.items()
+                if not raw
+            ]
+            if missing:
+                raise ValueError(f"Missing required env vars for cloud_mqtt: {', '.join(missing)}")
