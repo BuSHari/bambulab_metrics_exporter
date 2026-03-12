@@ -221,3 +221,18 @@ This command will:
 At exporter startup:
 - If `BAMBULAB_TRANSPORT=cloud_mqtt` and env tokens are missing, exporter auto-loads credentials from encrypted file.
 - Runtime-provided env vars are synced back into `.env` (whitelisted keys).
+
+
+## Startup behavior (connection preflight)
+
+On container startup, exporter performs a connection preflight:
+
+- **local_mqtt**
+  - If required env vars are missing: startup fails with clear error.
+  - If connection test fails: startup fails with troubleshooting message.
+
+- **cloud_mqtt**
+  - If credentials are missing/invalid: exporter tries automatic re-auth.
+  - Re-auth requires `BAMBULAB_CLOUD_EMAIL`.
+  - If `BAMBULAB_CLOUD_CODE` is missing, exporter sends a new code email and exits with instruction to restart with the code.
+  - On success, new credentials are saved encrypted to config dir and synced to `.env`, so next startup won't require re-entry.

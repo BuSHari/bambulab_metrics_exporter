@@ -14,6 +14,7 @@ from bambulab_metrics_exporter.credentials_store import load_encrypted_credentia
 from bambulab_metrics_exporter.env_sync import sync_env_file
 from bambulab_metrics_exporter.logging_utils import configure_logging
 from bambulab_metrics_exporter.metrics import ExporterMetrics
+from bambulab_metrics_exporter.startup import startup_validate
 
 logger = logging.getLogger(__name__)
 
@@ -58,6 +59,7 @@ def run() -> None:
     settings = Settings()
     configure_logging(settings.log_level)
     settings.require_transport_config()
+    startup_validate(settings)
 
     _persist_runtime_env(Path(".env"))
 
