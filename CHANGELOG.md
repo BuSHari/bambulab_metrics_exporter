@@ -1,0 +1,34 @@
+# Changelog
+
+All notable changes to this project are documented in this file.
+
+## [0.1.0] - 2026-03-12
+
+### Added
+- Initial production-ready Python exporter for Bambu Lab metrics.
+- Local MQTT and Cloud MQTT transport support.
+- Startup preflight validation with cloud re-auth flow support.
+- Encrypted local credential storage with `BAMBULAB_SECRET_KEY`.
+- Runtime env synchronization support for containerized deployments.
+- Full Docker support with non-root runtime flow and PUID/PGID mapping.
+- Unraid template: `unraid-bambulab-metrics-exporter.xml`.
+- Prometheus files under `prometheus/`:
+  - `prometheus.scrape.yml`
+  - `prometheus.alerts.yml`
+  - `prometheus.recording.yml`
+- Grafana sample dashboard with printer/transport telemetry panels.
+- GitHub Action workflow for Docker build & publish to GHCR.
+
+### Metrics
+- Core status and health metrics (`printer_up`, `printer_connected`, scrape self-metrics).
+- Print progress, remaining time, and layer metrics.
+- Temperature metrics: nozzle/bed/chamber + target values.
+- Fan metrics: aggregate + big1/big2/cooling/heatbreak.
+- State/action metrics: gcode state, stage/sub-stage/action codes.
+- AMS metrics: slot active/remain, status, RFID, humidity, temperature.
+- Queue metrics: total, estimated seconds, number, status, position.
+- Light and XCam feature metrics.
+
+### Notes
+- Default release branch is currently `master`.
+- Release tag format: `v0.1.0`.
