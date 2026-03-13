@@ -2,6 +2,21 @@
 
 All notable changes to this project are documented in this file.
 
+## [0.1.1] - 2026-03-13
+
+### Changed
+- Switched default branch/workflows/templates from `master` to `main`.
+- Updated Unraid XML to use clearer setup guidance and transport-specific field descriptions.
+- Updated Unraid XML icon/template URLs and transport dropdown defaults.
+- Simplified `docker-compose.yml` for cloud-first default run with minimal inline env comments.
+- Moved test artifacts/coverage output to `tests/results` and updated CI artifact upload path.
+
+### Added
+- Added `docs/logo.png` (Unraid icon) and `docs/logo2.png` (repository image).
+
+### Removed
+- Removed `docker-compose.test.yml`.
+
 ## [0.1.0] - 2026-03-12
 
 ### Added
@@ -30,5 +45,4 @@ All notable changes to this project are documented in this file.
 - Light and XCam feature metrics.
 
 ### Notes
-- Default release branch is currently `master`.
 - Release tag format: `v0.1.0`.

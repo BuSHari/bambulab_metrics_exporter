@@ -327,7 +327,7 @@ Default values are:
 Build/run example:
 
 ```bash
-cd /root/.openclaw/projects/bambulab-prometheus-exporter
+cd /path/to/bambulab-metrics-exporter
 export BAMBULAB_SECRET_KEY='your-strong-key'
 docker compose up --build -d
 ```

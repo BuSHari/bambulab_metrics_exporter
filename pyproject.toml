@@ -4,11 +4,11 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "bambulab-metrics-exporter"
-version = "0.1.0"
+version = "0.1.1"
 description = "Prometheus exporter for Bambu Lab printers"
 readme = "README.md"
 requires-python = ">=3.11"
-authors = [{ name = "OpenClaw Planner" }]
+authors = [{ name = "TheBlackBush" }]
 dynamic = ["dependencies", "optional-dependencies"]
 
 [project.scripts]
