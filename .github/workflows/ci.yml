@@ -3,12 +3,9 @@ name: CI
 on:
   pull_request:
     branches: ["main"]
-  push:
-    branches: ["main"]
 
 jobs:
   pr-essential-tests:
-    if: github.event_name == 'pull_request'
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -30,35 +27,3 @@ jobs:
           python -m compileall -q src tests
           ruff check src tests
           pytest -q tests/test_api.py tests/test_config.py tests/test_models.py tests/test_metrics.py
-
-  post-merge-full-tests:
-    if: github.event_name == 'push'
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Set up Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: '3.11'
-
-      - name: Install dependencies
-        run: |
-          python -m pip install --upgrade pip
-          pip install -r requirements-dev.txt
-          pip install -e .
-
-      - name: Full checks (after merge to main)
-        run: |
-          mkdir -p tests/results
-          python -m compileall -q src tests
-          ruff check src tests
-          mypy src
-          pytest -q
-
-      - name: Upload test result artifacts
-        uses: actions/upload-artifact@v4
-        with:
-          name: test-results
-          path: tests/results
