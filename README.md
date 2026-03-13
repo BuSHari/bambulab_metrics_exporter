@@ -18,23 +18,13 @@ Production-oriented Prometheus exporter for Bambu Lab printers (homelab/self-hos
   - `GET /health`
   - `GET /ready`
 
-## Engineering notes from reference (`WeeJeWel/com.bambulab`)
+## Implementation notes
 
-The Homey app was used as architecture reference (not copied):
+- Supports both LAN MQTT (`local_mqtt`) and Cloud MQTT (`cloud_mqtt`).
+- Uses `device/<serial>/report` and `device/<serial>/request` topics.
+- Requests full snapshots with `pushall` and maps stable telemetry fields to Prometheus metrics.
 
-- Authentication modes in that project:
-  - Cloud account flow (`email + 2FA`) for device discovery
-  - Local printer LAN mode using `bblp` + `accessCode`
-- Transport/state model:
-  - MQTT report topic: `device/<serial>/report`
-  - MQTT request topic: `device/<serial>/request`
-  - `pushall` command requests full state
-- Important telemetry fields observed:
-  - `gcode_state`, `mc_percent`, `mc_remaining_time`
-  - `nozzle_temper`, `bed_temper`, `chamber_temper`
-  - AMS blocks, error codes
-
-For exporter scope, local MQTT is preferred by default, but cloud MQTT is now supported as an alternative transport.
+For exporter scope, local MQTT is preferred by default, but cloud MQTT is also supported.
 
 ## Quick start (local)
 
