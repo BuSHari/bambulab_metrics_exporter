@@ -9,11 +9,8 @@ permissions:
   packages: write
 
 jobs:
-  docker:
+  full-tests:
     runs-on: ubuntu-latest
-    env:
-      IMAGE_NAME: ghcr.io/${{ github.repository_owner }}/bambulab_metrics_exporter
-      RELEASE_TAG: ${{ github.event.release.tag_name }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -29,12 +26,29 @@ jobs:
           pip install -r requirements-dev.txt
           pip install -e .
 
-      - name: Run lint, type-check and tests
+      - name: Run full checks
         run: |
+          mkdir -p tests/results
           python -m compileall -q src tests
           ruff check src tests
           mypy src
           pytest -q
+
+      - name: Upload test result artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-results-release
+          path: tests/results
+
+  docker:
+    needs: full-tests
+    runs-on: ubuntu-latest
+    env:
+      IMAGE_NAME: ghcr.io/${{ github.repository_owner }}/bambulab_metrics_exporter
+      RELEASE_TAG: ${{ github.event.release.tag_name }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
 
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v3
@@ -67,4 +81,3 @@ jobs:
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
           platforms: linux/amd64,linux/arm64
-
