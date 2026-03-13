@@ -123,6 +123,12 @@ docker compose up -d --build
 - Optional fields stay commented with short inline hints.
 - Works for regular Linux hosts and Unraid (`PUID/PGID/UMASK` optional).
 
+### CI/CD behavior (current)
+
+- Pull Requests to `main`: run essential tests only.
+- Push/Merge to `main`: run full test suite.
+- Published Release: run full tests, then Docker multi-arch build/push to GHCR.
+
 Minimal required values before first run (cloud mode):
 
 - `BAMBULAB_TRANSPORT=cloud_mqtt`

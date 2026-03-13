@@ -2,6 +2,12 @@
 
 All notable changes to this project are documented in this file.
 
+## [0.1.4] - 2026-03-13
+
+### Changed
+- README updated with clear CI/CD behavior summary for PR, main merge, and release flows.
+- `.gitignore` updated with additional local editor temp-file ignores.
+
 ## [0.1.3] - 2026-03-13
 
 ### Changed
