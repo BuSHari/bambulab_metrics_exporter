@@ -2,6 +2,16 @@
 
 All notable changes to this project are documented in this file.
 
+## [0.1.6] - 2026-03-13
+
+### Added
+- Added AMS tray metadata metrics: `bambulab_ams_slot_tray_type_info` and `bambulab_ams_slot_tray_color_info`.
+- Added sample artifacts for regression/debugging: `examples/sample_mqtt_message.json` and `examples/sample_metrics.prom`.
+
+### Changed
+- Updated README with new AMS tray metrics and sample artifact references.
+- Expanded metrics tests to cover AMS tray type/color labels.
+
 ## [0.1.5] - 2026-03-13
 
 ### Changed
