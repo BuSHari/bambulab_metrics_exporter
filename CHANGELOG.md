@@ -2,6 +2,13 @@
 
 All notable changes to this project are documented in this file.
 
+## [0.1.5] - 2026-03-13
+
+### Changed
+- CI workflow simplified to PR essential checks only.
+- Release workflow (`docker-publish`) remains the single place for full tests + Docker build/push.
+- Release notes are now updated automatically with published Docker image paths after successful release publish workflow.
+
 ## [0.1.4] - 2026-03-13
 
 ### Changed
