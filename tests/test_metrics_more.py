@@ -47,8 +47,8 @@ def test_metrics_full_update_with_ams_lights_xcam() -> None:
                             "humidity": "18",
                             "temp": "23",
                             "tray": [
-                                {"id": "2", "remain": 87},
-                                {"id": "3", "remain": 50},
+                                {"id": "2", "remain": 87, "tray_type": "PLA", "tray_color": "f98c36ff"},
+                                {"id": "3", "remain": 50, "tray_type": "PETG", "tray_color": "161616ff"},
                             ],
                         }
                     ],
@@ -65,3 +65,5 @@ def test_metrics_full_update_with_ams_lights_xcam() -> None:
     assert metrics.chamber_light_on.labels(**labels)._value.get() == 1.0
     assert metrics.work_light_on.labels(**labels)._value.get() == 0.0
     assert metrics.ams_unit_humidity.labels(**labels, ams_id="1")._value.get() == 18.0
+    assert metrics.ams_slot_tray_type.labels(**labels, ams_id="1", slot_id="2", tray_type="PLA")._value.get() == 1.0
+    assert metrics.ams_slot_tray_color.labels(**labels, ams_id="1", slot_id="2", tray_color="F98C36FF")._value.get() == 1.0

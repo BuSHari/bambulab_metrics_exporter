@@ -26,3 +26,6 @@ src/*.egg-info/
 # test artifacts
 tests/results/*
 !tests/results/.gitkeep
+
+# local release rules
+RELEASE_RULES.md

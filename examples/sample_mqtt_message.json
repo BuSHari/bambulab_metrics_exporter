@@ -1,0 +1,33 @@
+{
+  "print": {
+    "gcode_state": "RUNNING",
+    "mc_percent": 21,
+    "mc_remaining_time": 360,
+    "nozzle_temper": 220,
+    "nozzle_target_temper": 220,
+    "bed_temper": 60,
+    "bed_target_temper": 65,
+    "chamber_temper": 34,
+    "wifi_signal": -54,
+    "mc_print_error_code": 0,
+    "lights_report": [
+      { "node": "chamber_light", "mode": "on" }
+    ],
+    "ams": {
+      "tray_now": "2",
+      "ams": [
+        {
+          "id": "0",
+          "humidity": 5,
+          "temp": -41.5,
+          "tray": [
+            { "id": "0", "remain": 90, "tray_type": "PLA", "tray_color": "7C4B00FF" },
+            { "id": "1", "remain": 0, "tray_type": "unknown", "tray_color": "" },
+            { "id": "2", "remain": 70, "tray_type": "PLA", "tray_color": "F98C36FF" },
+            { "id": "3", "remain": 50, "tray_type": "PLA", "tray_color": "161616FF" }
+          ]
+        }
+      ]
+    }
+  }
+}

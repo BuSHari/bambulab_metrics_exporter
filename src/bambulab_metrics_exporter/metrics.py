@@ -68,6 +68,18 @@ class ExporterMetrics:
             [*label_names, "ams_id", "slot_id"],
             registry=self.registry,
         )
+        self.ams_slot_tray_type = Gauge(
+            "bambulab_ams_slot_tray_type_info",
+            "AMS slot filament type as labeled one-hot info metric",
+            [*label_names, "ams_id", "slot_id", "tray_type"],
+            registry=self.registry,
+        )
+        self.ams_slot_tray_color = Gauge(
+            "bambulab_ams_slot_tray_color_info",
+            "AMS slot filament color as labeled one-hot info metric",
+            [*label_names, "ams_id", "slot_id", "tray_color"],
+            registry=self.registry,
+        )
         self.ams_unit_humidity = Gauge(
             "bambulab_ams_unit_humidity",
             "AMS unit humidity",
@@ -207,6 +219,16 @@ class ExporterMetrics:
                         **labels, ams_id=ams_id, slot_id=tray_id
                     ).set(float(remain))
 
+                tray_type = str(tray.get("tray_type", "")).strip() or "unknown"
+                self.ams_slot_tray_type.labels(
+                    **labels, ams_id=ams_id, slot_id=tray_id, tray_type=tray_type
+                ).set(1.0)
+
+                tray_color = str(tray.get("tray_color", "")).strip().upper() or "unknown"
+                self.ams_slot_tray_color.labels(
+                    **labels, ams_id=ams_id, slot_id=tray_id, tray_color=tray_color
+                ).set(1.0)
+
     def _set_optional(self, gauge: Gauge, value: float | None) -> None:
         labels = self._labels()
         if value is None:
@@ -217,6 +239,8 @@ class ExporterMetrics:
     def _clear_ams(self, labels: dict[str, str]) -> None:
         self.ams_slot_active.clear()
         self.ams_slot_remaining_percent.clear()
+        self.ams_slot_tray_type.clear()
+        self.ams_slot_tray_color.clear()
         self.ams_unit_humidity.clear()
         self.ams_unit_temperature_celsius.clear()
 

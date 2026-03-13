@@ -166,6 +166,8 @@ scrape_configs:
 - `bambulab_printer_gcode_state{state="..."}` (one-hot)
 - `bambulab_ams_slot_active{ams_id,slot_id}`
 - `bambulab_ams_slot_remaining_percent{ams_id,slot_id}`
+- `bambulab_ams_slot_tray_type_info{ams_id,slot_id,tray_type}`
+- `bambulab_ams_slot_tray_color_info{ams_id,slot_id,tray_color}`
 
 - `bambulab_fan_big_1_speed_percent`
 - `bambulab_fan_big_2_speed_percent`
@@ -212,6 +214,13 @@ pip install -r requirements-dev.txt
 # or: pip install -e .[dev]
 pytest -q
 ```
+
+### Sample payload and expected metrics
+
+- MQTT sample payload: `examples/sample_mqtt_message.json`
+- Sample metrics excerpt: `examples/sample_metrics.prom`
+
+These are useful for quick regression checks and dashboard/query validation.
 
 ## Known limitations
 
