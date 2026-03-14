@@ -37,7 +37,7 @@ def test_collector_start_stop_and_ready() -> None:
         bambulab_access_code="a",
         polling_interval_seconds=0.1,
     )
-    metrics = ExporterMetrics(printer_name="x", site="", location="")
+    metrics = ExporterMetrics(printer_name="x", serial="s")
     snapshot = PrinterSnapshot(connected=True, raw={"print": {"mc_percent": 10}})
     client = _ClientStub(snapshot)
 

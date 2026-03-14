@@ -28,7 +28,14 @@ def test_run_wires_components(monkeypatch) -> None:
     monkeypatch.setattr("bambulab_metrics_exporter.main.Settings", lambda: settings)
     monkeypatch.setattr("bambulab_metrics_exporter.main.startup_validate", lambda s: None)
     monkeypatch.setattr("bambulab_metrics_exporter.main._persist_runtime_env", lambda p: None)
-    monkeypatch.setattr("bambulab_metrics_exporter.main.build_client", lambda s: object())
+    class _ClientStub:
+        def connect(self): pass
+        def disconnect(self): pass
+        def fetch_snapshot(self, timeout):
+            from bambulab_metrics_exporter.models import PrinterSnapshot
+            return PrinterSnapshot(connected=False, raw={})
+
+    monkeypatch.setattr("bambulab_metrics_exporter.main.build_client", lambda s: _ClientStub())
 
     collector = _CollectorStub()
     monkeypatch.setattr("bambulab_metrics_exporter.main.PollingCollector", lambda client, metrics, settings: collector)
