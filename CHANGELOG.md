@@ -2,6 +2,15 @@
 
 All notable changes to this project are documented in this file.
 
+## [0.1.8] - 2026-03-14
+
+### Added
+- Added explicit MQTT-aligned metrics for `print_error` and `fan_gear` as `bambulab_print_error` and `bambulab_fan_gear`.
+- Added info metric for fail reason: `bambulab_fail_reason_info` (label: `fail_reason`).
+
+### Changed
+- Kept existing derived metrics while exposing clearer MQTT field names for dashboards.
+
 ## [0.1.7] - 2026-03-14
 
 ### Added
