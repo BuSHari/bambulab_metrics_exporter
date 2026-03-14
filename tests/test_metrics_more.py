@@ -67,3 +67,15 @@ def test_metrics_full_update_with_ams_lights_xcam() -> None:
     assert metrics.ams_unit_humidity.labels(**labels, ams_id="1")._value.get() == 18.0
     assert metrics.ams_slot_tray_type.labels(**labels, ams_id="1", slot_id="2", tray_type="PLA")._value.get() == 1.0
     assert metrics.ams_slot_tray_color.labels(**labels, ams_id="1", slot_id="2", tray_color="F98C36FF")._value.get() == 1.0
+
+
+def test_metrics_work_light_flashing_treated_as_on() -> None:
+    metrics = ExporterMetrics(printer_name="p1", site="s", location="l")
+    snapshot = PrinterSnapshot(
+        connected=True,
+        raw={"print": {"lights_report": [{"node": "work_light", "mode": "flashing"}]}},
+    )
+
+    metrics.update_from_snapshot(snapshot)
+    labels = dict(printer_name="p1", site="s", location="l")
+    assert metrics.work_light_on.labels(**labels)._value.get() == 1.0

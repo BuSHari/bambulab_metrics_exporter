@@ -164,7 +164,7 @@ class ExporterMetrics:
         for light in snapshot.lights_report:
             node = str(light.get("node", "")).lower()
             mode = str(light.get("mode", "")).lower()
-            light_state = 1.0 if mode == "on" else 0.0 if mode in {"off", "auto"} else float("nan")
+            light_state = 1.0 if mode in {"on", "flashing", "blink", "blinking"} else 0.0 if mode in {"off", "auto"} else float("nan")
             if node == "chamber_light":
                 chamber_light = light_state
             if node == "work_light":
