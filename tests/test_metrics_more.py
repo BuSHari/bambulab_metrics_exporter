@@ -66,8 +66,8 @@ def test_metrics_full_update_with_ams_lights_xcam() -> None:
     assert metrics.printer_up.labels(**labels)._value.get() == 1.0
     assert metrics.chamber_light_on.labels(**labels)._value.get() == 1.0
     assert metrics.work_light_on.labels(**labels)._value.get() == 0.0
-    assert metrics.fan_gear_raw.labels(**labels)._value.get() == 10.0
-    assert metrics.print_error_raw.labels(**labels)._value.get() == 0.0
+    assert metrics.fan_gear.labels(**labels)._value.get() == 10.0
+    assert metrics.print_error_explicit.labels(**labels)._value.get() == 0.0
     assert (
         metrics.fail_reason_info.labels(**labels, fail_reason="filament runout")._value.get() == 1.0
     )
