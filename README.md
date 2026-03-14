@@ -212,8 +212,10 @@ All metrics include stable labels:
 ```bash
 pip install -r requirements-dev.txt
 # or: pip install -e .[dev]
-pytest -q
+pytest --cov=src --cov-report=term-missing
 ```
+
+Currently maintaining **>95% test coverage** for core modules.
 
 ### Sample payload and expected metrics
 

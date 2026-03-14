@@ -2,6 +2,16 @@
 
 All notable changes to this project are documented in this file.
 
+## [0.1.10] - 2026-03-14
+
+### Added
+- Significant increase in test coverage to >95%.
+- New test suites for MQTT callbacks, discovery probe, and complex model edge cases.
+- Coverage for startup validation and shutdown handlers.
+
+### Fixed
+- Resolved `mypy` type mismatch in speed level lookup.
+
 ## [0.1.9] - 2026-03-14
 
 ### Added
