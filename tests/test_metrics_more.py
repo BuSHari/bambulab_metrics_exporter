@@ -34,6 +34,7 @@ def test_metrics_full_update_with_ams_lights_xcam() -> None:
                 "print_error": 0,
                 "ap_err": 0,
                 "mc_print_error_code": "0",
+                "fail_reason": "filament runout",
                 "lights_report": [
                     {"node": "chamber_light", "mode": "on"},
                     {"node": "work_light", "mode": "off"},
@@ -64,6 +65,9 @@ def test_metrics_full_update_with_ams_lights_xcam() -> None:
     assert metrics.printer_up.labels(**labels)._value.get() == 1.0
     assert metrics.chamber_light_on.labels(**labels)._value.get() == 1.0
     assert metrics.work_light_on.labels(**labels)._value.get() == 0.0
+    assert (
+        metrics.fail_reason_info.labels(**labels, fail_reason="filament runout")._value.get() == 1.0
+    )
     assert metrics.ams_unit_humidity.labels(**labels, ams_id="1")._value.get() == 18.0
     assert metrics.ams_slot_tray_type.labels(**labels, ams_id="1", slot_id="2", tray_type="PLA")._value.get() == 1.0
     assert metrics.ams_slot_tray_color.labels(**labels, ams_id="1", slot_id="2", tray_color="F98C36FF")._value.get() == 1.0

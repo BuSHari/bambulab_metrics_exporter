@@ -77,3 +77,11 @@ def test_model_wifi_signal_dbm_string() -> None:
         raw={"print": {"wifi_signal": "-42dBm"}},
     )
     assert snap.wifi_signal == -42.0
+
+
+def test_model_fail_reason_string() -> None:
+    snap = PrinterSnapshot(
+        connected=True,
+        raw={"print": {"fail_reason": "filament runout"}},
+    )
+    assert snap.fail_reason == "filament runout"

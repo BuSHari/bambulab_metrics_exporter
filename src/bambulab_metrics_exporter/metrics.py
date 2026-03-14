@@ -61,6 +61,12 @@ class ExporterMetrics:
             [*label_names, "subtask_name"],
             registry=self.registry,
         )
+        self.fail_reason_info = Gauge(
+            "bambulab_fail_reason_info",
+            "Current print fail reason as labeled info metric",
+            [*label_names, "fail_reason"],
+            registry=self.registry,
+        )
 
         self.ams_slot_active = Gauge(
             "bambulab_ams_slot_active",
@@ -199,6 +205,10 @@ class ExporterMetrics:
         self.subtask_name_info.clear()
         if snapshot.subtask_name:
             self.subtask_name_info.labels(**labels, subtask_name=snapshot.subtask_name).set(1.0)
+
+        self.fail_reason_info.clear()
+        if snapshot.fail_reason:
+            self.fail_reason_info.labels(**labels, fail_reason=snapshot.fail_reason).set(1.0)
 
         self._clear_ams(labels)
         for ams in snapshot.ams_units:

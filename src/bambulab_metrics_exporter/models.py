@@ -248,6 +248,12 @@ class PrinterSnapshot:
             return value.strip()
         return None
 
+    @property
+    def fail_reason(self) -> str | None:
+        value = self.print_block.get("fail_reason")
+        if isinstance(value, str) and value.strip():
+            return value.strip()
+        return None
 
     @property
     def lights_report(self) -> list[dict[str, Any]]:
