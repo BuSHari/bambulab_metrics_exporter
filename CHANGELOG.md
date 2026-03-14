@@ -2,6 +2,20 @@
 
 All notable changes to this project are documented in this file.
 
+## [0.1.9] - 2026-03-14
+
+### Added
+- Auto-discovery of printer name during initial connection (persisted as `BAMBULAB_PRINTER_NAME`).
+- Mandatory `serial` label on all metrics (derived from `BAMBULAB_SERIAL`).
+
+### Changed
+- Refactored labels: Removed `site` and `location`.
+- Renamed `PRINTER_NAME` env var to `PRINTER_NAME_LABEL`.
+- Improved printer name resolution: uses `PRINTER_NAME_LABEL` if set, falls back to discovered `BAMBULAB_PRINTER_NAME`.
+
+### Fixed
+- Updated test suite and mocks to support the new label schema and connection probe.
+
 ## [0.1.8] - 2026-03-14
 
 ### Added

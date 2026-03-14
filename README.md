@@ -86,20 +86,12 @@ bambulab-exporter
 | `BAMBULAB_ACCESS_CODE` | yes | - | Printer LAN access code |
 | `BAMBULAB_USERNAME` | no | `bblp` | MQTT username |
 | `BAMBULAB_REQUEST_PUSHALL` | no | `true` | Request full snapshot every poll |
-| `BAMBULAB_CLOUD_MQTT_HOST` | cloud | `us.mqtt.bambulab.com` | Cloud MQTT broker host |
-| `BAMBULAB_CLOUD_MQTT_PORT` | cloud | `8883` | Cloud MQTT broker port |
-| `BAMBULAB_CLOUD_EMAIL` | recommended | - | Account email used by startup auto re-auth flow |
-| `BAMBULAB_CLOUD_CODE` | optional | empty | One-time code for auto re-auth (if token missing/expired) |
-| `BAMBULAB_CLOUD_USER_ID` | cloud | - | Bambu cloud uid (used as username `u_<uid>`) |
-| `BAMBULAB_CLOUD_ACCESS_TOKEN` | cloud | - | Bambu cloud access token |
-| `BAMBULAB_CLOUD_REFRESH_TOKEN` | no | empty | Optional stored refresh token |
+| `PRINTER_NAME_LABEL` | no | empty | Custom printer name label (falls back to `BAMBULAB_PRINTER_NAME`) |
+| `BAMBULAB_PRINTER_NAME` | no | auto | Real printer name discovered from machine (auto-persisted) |
 | `POLLING_INTERVAL_SECONDS` | no | `10` | Polling interval |
 | `REQUEST_TIMEOUT_SECONDS` | no | `8` | Per-cycle snapshot timeout |
 | `LISTEN_HOST` | no | `0.0.0.0` | HTTP bind host |
 | `LISTEN_PORT` | no | `9109` | HTTP port |
-| `PRINTER_NAME` | no | `bambulab` | Stable metric label |
-| `SITE` | no | empty | Optional metric label |
-| `LOCATION` | no | empty | Optional metric label |
 | `LOG_LEVEL` | no | `INFO` | Python log level |
 
 ## Docker
@@ -212,9 +204,8 @@ Exporter self-metrics:
 
 All metrics include stable labels:
 
-- `printer_name`
-- `site`
-- `location`
+- `printer_name` (from `PRINTER_NAME_LABEL` or `BAMBULAB_PRINTER_NAME`)
+- `serial` (from `BAMBULAB_SERIAL`)
 
 ## Testing
 
