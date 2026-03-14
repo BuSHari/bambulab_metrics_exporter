@@ -213,7 +213,10 @@ class ExporterMetrics:
             self.mc_print_stage_state.labels(**labels, stage=stage).set(1.0 if stage == stage_current else 0.0)
 
         speed_modes = {1.0: "SILENT", 2.0: "STANDARD", 3.0: "SPORT", 4.0: "LUDICROUS"}
-        current_speed_mode = speed_modes.get(snapshot.spd_lvl, "UNKNOWN")
+        current_speed_mode = "UNKNOWN"
+        if snapshot.spd_lvl is not None:
+            current_speed_mode = speed_modes.get(snapshot.spd_lvl, "UNKNOWN")
+
         for mode in {"SILENT", "STANDARD", "SPORT", "LUDICROUS", "UNKNOWN"}:
             self.spd_lvl_state.labels(**labels, mode=mode).set(1.0 if mode == current_speed_mode else 0.0)
 
