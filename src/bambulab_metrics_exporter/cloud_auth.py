@@ -7,6 +7,7 @@ import random
 import sys
 import time
 from dataclasses import dataclass
+from typing import Any
 from pathlib import Path
 from urllib import error, request
 
@@ -307,7 +308,7 @@ def _build_parser() -> argparse.ArgumentParser:
 
 def get_bind_devices(
     access_token: str,
-    timeout_seconds: int = DEFAULT_TIMEOUT_SECONDS,
+    timeout_seconds: float = DEFAULT_TIMEOUT_SECONDS,
     retries: int = DEFAULT_RETRIES,
     api_bases: list[str] | None = None,
 ) -> list[dict[str, Any]]:
@@ -317,7 +318,7 @@ def get_bind_devices(
             data = _get_json(
                 api_base=api_base,
                 path="/v1/iot-service/api/user/bind",
-                timeout_seconds=timeout_seconds,
+                timeout_seconds=int(timeout_seconds),
                 retries=retries,
                 access_token=access_token,
             )

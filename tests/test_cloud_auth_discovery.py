@@ -1,5 +1,4 @@
 import os
-import json
 from unittest.mock import patch, MagicMock
 from bambulab_metrics_exporter import cloud_auth
 
